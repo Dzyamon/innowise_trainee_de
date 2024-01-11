@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<data>
+  <row>
+    <index>0</index>
+    <room>661</room>
+    <result>3878</result>
+  </row>
+  <row>
+    <index>1</index>
+    <room>913</room>
+    <result>6785</result>
+  </row>
+  <row>
+    <index>2</index>
+    <room>111</room>
+    <result>11151</result>
+  </row>
+  <row>
+    <index>3</index>
+    <room>957</room>
+    <result>11664</result>
+  </row>
+  <row>
+    <index>4</index>
+    <room>773</room>
+    <result>12410</result>
+  </row>
+</data>

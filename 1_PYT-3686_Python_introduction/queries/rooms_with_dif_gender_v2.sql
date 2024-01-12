@@ -13,4 +13,4 @@ COPY (
         ORDER BY s.room) t
     )
 --SELECT json_agg(t) FROM t \g my_data_dump.json;
-TO 'D:\DO\Innowise\trainee\task1\source\output\rooms_with_dif_gender_v3.json';
+TO '/home/user/projects/de-trainee/1_PYT-3686_Python_introduction/source/output/rooms_with_dif_gender_v3.json';

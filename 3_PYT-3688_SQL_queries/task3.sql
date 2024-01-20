@@ -1,26 +1,27 @@
 -- 1.Вывести количество фильмов в каждой категории, отсортировать по убыванию.
 -- отличия Sports=74 	Drama=62	Travel=57
-SELECT c.name, COUNT(*) AS films_count
+SELECT c.name AS category_name, COUNT(*) AS films_count
 FROM category c
 LEFT JOIN film_category fc ON fc.category_id = c.category_id
-GROUP BY 1
-ORDER BY 2 DESC;
+GROUP BY category_name
+ORDER BY films_count DESC;
 -- v2 (через view "film_list")
 -- отличия Sports=73	Drama=61	Travel=56  - мб из-за group на group ?
 SELECT category, COUNT(*) AS films_count
 FROM film_list
-GROUP BY 1
-ORDER BY 2 DESC;
+GROUP BY category
+ORDER BY films_count DESC;
 
 
 -- 2.Вывести 10 актеров, чьи фильмы большего всего арендовали, отсортировать по убыванию.
-SELECT concat(a.first_name || ' '::text || a.last_name) AS actor_name, count(inventory_id) AS rental_count
+SELECT concat(a.first_name || ' '::text || a.last_name) AS actor_name,
+       count(inventory_id) AS rental_count
 FROM actor a
 JOIN film_actor fa USING (actor_id) 	-- ON fa.actor_id = a.actor_id
 -- JOIN film f ON fa.film_id = f.film_id
 JOIN inventory i USING(film_id) 		-- ON i.film_id = fa.film_id
 JOIN rental r USING(inventory_id) 		-- ON r.inventory_id = i.inventory_id
-GROUP BY 1
+GROUP BY actor_name
 ORDER BY rental_count DESC
 LIMIT 10;
 
@@ -29,32 +30,32 @@ LIMIT 10;
 -- ??? если потратили денег на производство фильма, то таких данных нет
 -- если потратили деньги на аренду, то есть готовый view sales_by_film_category
 SELECT * FROM sales_by_film_category;
--- вывод одной категории с макс. арендной суммой
-SELECT c.name AS category, sum(p.amount) AS total_sales
+-- либо вывод одной категории с макс. арендной суммой
+SELECT c.name AS category_name, sum(p.amount) AS total_sales
 FROM payment p
 JOIN rental r ON p.rental_id = r.rental_id
 JOIN inventory i ON r.inventory_id = i.inventory_id
 JOIN film f ON i.film_id = f.film_id
 JOIN film_category fc ON f.film_id = fc.film_id
 JOIN category c ON fc.category_id = c.category_id
-GROUP BY c.name
-ORDER BY (sum(p.amount)) DESC
+GROUP BY category_name
+ORDER BY total_sales DESC
 LIMIT 1;
 
 
 -- 4.Вывести названия фильмов, которых нет в inventory. Написать запрос без использования оператора IN.
-SELECT f.title, f.film_id
+SELECT f.title AS film_title, f.film_id
 FROM film f
 LEFT JOIN inventory i ON f.film_id = i.film_id
 WHERE i.film_id IS NULL;
 --v2
-SELECT f.title, f.film_id
+SELECT f.title AS film_title, f.film_id
 FROM film f
 WHERE NOT EXISTS (
-				SELECT 1
+				SELECT i.film_id
                 FROM inventory i
                 WHERE i.film_id = f.film_id
-                )
+                );
 
 
 -- 5.Вывести топ 3 актеров, которые больше всего появлялись в фильмах в категории “Children”. Если у нескольких актеров одинаковое кол-во фильмов, вывести всех.
@@ -66,7 +67,7 @@ WITH actor_film_counts AS (
   JOIN film_category fc ON f.film_id = fc.film_id
   JOIN category c ON fc.category_id = c.category_id
   WHERE c.name = 'Children'
-  GROUP BY 1,2,3
+  GROUP BY a.first_name, a.last_name, c.name
 )
 SELECT first_name, last_name, film_count
 FROM actor_film_counts
@@ -107,7 +108,7 @@ WITH max_rental_hours AS (
 	WHERE
 		ct.city LIKE 'A%' OR ct.city LIKE '%-%'
 	GROUP BY
-        1,2
+        category_name, city_name
 	)
 SELECT
     category_name,

@@ -43,7 +43,8 @@ ORDER BY total_sales DESC
 LIMIT 1;
 
 
--- 4.Вывести названия фильмов, которых нет в inventory. Написать запрос без использования оператора IN.
+-- 4.Вывести названия фильмов, которых нет в inventory.
+-- Написать запрос без использования оператора IN.
 SELECT f.title AS film_title, f.film_id
 FROM film f
 LEFT JOIN inventory i ON f.film_id = i.film_id
@@ -58,7 +59,8 @@ WHERE NOT EXISTS (
                 );
 
 
--- 5.Вывести топ 3 актеров, которые больше всего появлялись в фильмах в категории “Children”. Если у нескольких актеров одинаковое кол-во фильмов, вывести всех.
+-- 5.Вывести топ 3 актеров, которые больше всего появлялись в фильмах в категории “Children”.
+-- Если у нескольких актеров одинаковое кол-во фильмов, вывести всех.
 WITH actor_film_counts AS (
   SELECT a.first_name, a.last_name, c.name, COUNT(*) AS film_count
   FROM actor a
@@ -79,7 +81,8 @@ WHERE film_count IN (
 ORDER BY film_count DESC;
 
 
--- 6.Вывести города с количеством активных и неактивных клиентов (активный — customer.active = 1). Отсортировать по количеству неактивных клиентов по убыванию.
+-- 6.Вывести города с количеством активных и неактивных клиентов (активный — customer.active = 1).
+-- Отсортировать по количеству неактивных клиентов по убыванию.
 SELECT c.city,
        COUNT(CASE WHEN cu.active = 1 THEN 1 END) AS active_customers,
        COUNT(CASE WHEN cu.active = 0 THEN 1 END) AS inactive_customers

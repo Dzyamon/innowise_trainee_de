@@ -6,7 +6,7 @@ LEFT JOIN film_category fc ON fc.category_id = c.category_id
 GROUP BY category_name
 ORDER BY films_count DESC;
 -- v2 (через view "film_list")
--- отличия Sports=73	Drama=61	Travel=56  - мб из-за group на group ?
+-- отличия Sports=73	Drama=61	Travel=56  - может из-за group на group ?
 SELECT category, COUNT(*) AS films_count
 FROM film_list
 GROUP BY category

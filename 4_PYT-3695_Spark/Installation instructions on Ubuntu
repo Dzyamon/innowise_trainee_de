@@ -1,0 +1,19 @@
+1) install java 8:
+    sudo apt-get install openjdk-8-jdk
+2) sdkman:
+    curl -s "https://get.sdkman.io" | bash
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+3) spark:
+    sdk install spark
+4) hadoop:
+    sdk install hadoop
+5) edit file /home/user/.bashrc :
+    export SPARK_HOME=/home/user/.sdkman/candidates/spark/3.5.0/
+    export PATH=$PATH:$SPARK_HOME/bin
+
+    export HADOOP_HOME=/home/user/.sdkman/candidates/hadoop/3.3.5/
+    export PATH=$PATH:$HADOOP_HOME/bin
+
+    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+    export SDKMAN_DIR="$HOME/.sdkman"
+    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

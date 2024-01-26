@@ -134,7 +134,3 @@ FROM
     max_rental_hours
 WHERE
     total_rental_hours = (
-        SELECT MAX(total_rental_hours)
-        FROM max_rental_hours
-        WHERE city_name LIKE '%-%'
-		)

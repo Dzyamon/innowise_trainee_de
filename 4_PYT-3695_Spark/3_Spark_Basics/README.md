@@ -115,13 +115,13 @@ spark-class org.apache.spark.deploy.master.Master
 Далее необходимо поднять например два worker. 
 Откройте новое cmd окно и впишите туда следующее
 ```
-spark-class org.apache.spark.deploy.worker.Worker spark://<адрес мастера> --cores 2 --memory 3g
+spark-class org.apache.spark.deploy.worker.Worker spark://10.202.35.92:7077 --cores 2 --memory 3g
 ```
 Это создат worker на вашем компьютере с 2 ядрами и 3гб оперативки. Spark считает логические ядра, то есть например у меня 6 ядер по 2 потока, то есть для спарка это 12 ядер. 
 Чтобы проверить что он создался, зайдите в UI и там будет Workers(1). Note: не меняйте сеть когда создаёте все это, ибо очевидно что адреса будут меняться.
 Создадим ещё одного Worker но уже с 3 ядрами и 4g памяти.
 ```
-spark-class org.apache.spark.deploy.worker.Worker spark://<адрес мастера> --cores 3 --memory 4g
+spark-class org.apache.spark.deploy.worker.Worker spark://10.202.35.92:7077 --cores 3 --memory 4g
 ```
 В spark UI должен появиться второй Worker.
 Теперь ваш кластер готов к боевым действиям.
@@ -215,6 +215,12 @@ https://spark.apache.org/docs/3.0.0-preview/web-ui.html#:~:text=Apache%20Spark%2
 
 ```
 spark.eventLog.enabled true
+spark.eventLog.dir /home/user/projects/de-trainee/4_PYT-3695_Spark/3_Spark_Basics/for_history
+spark.history.fs.logDirectory /home/user/projects/de-trainee/4_PYT-3695_Spark/3_Spark_Basics/for_history
+```
+win
+```
+spark.eventLog.enabled true
 spark.eventLog.dir file:///C:/Users/stepa/Desktop/spark_demo/3_Spark_Basics/for_history
 spark.history.fs.logDirectory file:///C:/Users/stepa/Desktop/spark_demo/3_Spark_Basics/for_history
 ```
@@ -233,12 +239,17 @@ spark-class org.apache.spark.deploy.history.HistoryServer
 (файл лежит по этому пути ...\spark-3.1.3-bin-hadoop2.7\conf). Естественно пути надо прописать свои, они будут почти такие же.
 
 ```
+export PYSPARK_PYTHON=/usr/bin/python3
+export PYSPARK_DRIVER_PYTHON=/usr/bin/python3
+```
+win
+```
 set PYSPARK_PYTHON=C:\users\stepa\appdata\local\programs\python\python39\python.exe
 set PYSPARK_DRIVER_PYTHON=C:\users\stepa\appdata\local\programs\python\python39\python.exe
 ```
 
 Файл с кодом уже готов и называется spark_basics.py, в нём необходимо поменять пути для считывания df_people, df_country, df_parquet и для записи df_last, plans1.txt И plans.txt.
-После его требуется запустить и посмотреть на различные метрики в Spark UI(если не успеете за время выполнения приложения, то бегом в history server), а также 
+После его требуется запустить командой ```spark-submit spark_basics.py``` и посмотреть на различные метрики в Spark UI(если не успеете за время выполнения приложения, то бегом в history server), а также 
 на планы запросов которые будут сохранены в отдельный файл с названием plans.txt или plans1.txt. Сравните план выполнения с кодом в spark_basics.py, 
 сравните различные планы(логический от физического, или какие-нибудь ещё). Также обязательно зайдите в history server в раздел SQL(сверху где Jobs, Stages...)
 и посмотрите всё в интерактивной форме. В статье которая посложнее про чтение планов достаточно хорошо объясняется как там всё читать.

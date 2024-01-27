@@ -1,0 +1,114 @@
+== Parsed Logical Plan ==
+'Project ['name, 'city, 'total_rental_hours]
++- Filter ((city#99 LIKE A% AND (total_rental_hours#1503L = cast(46 as bigint))) OR (city#99 LIKE %-% AND (total_rental_hours#1503L = cast(36 as bigint))))
+   +- Aggregate [name#76, city#99], [name#76, city#99, sum(cast(coalesce(extract(DAY, (return_date#275 - rental_date#272)), 0) as int)) AS total_rental_hours#1503L]
+      +- Filter (city#99 LIKE A% OR city#99 LIKE %-%)
+         +- Join Inner, (city_id#46 = city_id#98)
+            :- Join Inner, (address_id#128 = address_id#42)
+            :  :- Join Inner, (customer_id#274 = customer_id#123)
+            :  :  :- Join Inner, (inventory_id#251 = inventory_id#273)
+            :  :  :  :- Join Inner, (film_id#228 = film_id#252)
+            :  :  :  :  :- Join Inner, (category_id#75 = category_id#229)
+            :  :  :  :  :  :- Relation [category_id#75,name#76,last_update#77] csv
+            :  :  :  :  :  +- Relation [film_id#228,category_id#229,last_update#230] csv
+            :  :  :  :  +- Relation [inventory_id#251,film_id#252,store_id#253,last_update#254] csv
+            :  :  :  +- Relation [rental_id#271,rental_date#272,inventory_id#273,customer_id#274,return_date#275,staff_id#276,last_update#277] csv
+            :  :  +- Relation [customer_id#123,store_id#124,first_name#125,last_name#126,email#127,address_id#128,activebool#129,create_date#130,last_update#131,active#132] csv
+            :  +- Relation [address_id#42,address#43,address2#44,district#45,city_id#46,postal_code#47,phone#48L,last_update#49] csv
+            +- Relation [city_id#98,city#99,country_id#100,last_update#101] csv
+
+== Analyzed Logical Plan ==
+name: string, city: string, total_rental_hours: bigint
+Project [name#76, city#99, total_rental_hours#1503L]
++- Filter ((city#99 LIKE A% AND (total_rental_hours#1503L = cast(46 as bigint))) OR (city#99 LIKE %-% AND (total_rental_hours#1503L = cast(36 as bigint))))
+   +- Aggregate [name#76, city#99], [name#76, city#99, sum(cast(coalesce(extract(DAY, (return_date#275 - rental_date#272)), 0) as int)) AS total_rental_hours#1503L]
+      +- Filter (city#99 LIKE A% OR city#99 LIKE %-%)
+         +- Join Inner, (city_id#46 = city_id#98)
+            :- Join Inner, (address_id#128 = address_id#42)
+            :  :- Join Inner, (customer_id#274 = customer_id#123)
+            :  :  :- Join Inner, (inventory_id#251 = inventory_id#273)
+            :  :  :  :- Join Inner, (film_id#228 = film_id#252)
+            :  :  :  :  :- Join Inner, (category_id#75 = category_id#229)
+            :  :  :  :  :  :- Relation [category_id#75,name#76,last_update#77] csv
+            :  :  :  :  :  +- Relation [film_id#228,category_id#229,last_update#230] csv
+            :  :  :  :  +- Relation [inventory_id#251,film_id#252,store_id#253,last_update#254] csv
+            :  :  :  +- Relation [rental_id#271,rental_date#272,inventory_id#273,customer_id#274,return_date#275,staff_id#276,last_update#277] csv
+            :  :  +- Relation [customer_id#123,store_id#124,first_name#125,last_name#126,email#127,address_id#128,activebool#129,create_date#130,last_update#131,active#132] csv
+            :  +- Relation [address_id#42,address#43,address2#44,district#45,city_id#46,postal_code#47,phone#48L,last_update#49] csv
+            +- Relation [city_id#98,city#99,country_id#100,last_update#101] csv
+
+== Optimized Logical Plan ==
+Filter ((StartsWith(city#99, A) AND (total_rental_hours#1503L = 46)) OR (Contains(city#99, -) AND (total_rental_hours#1503L = 36)))
++- Aggregate [name#76, city#99], [name#76, city#99, sum(coalesce(extractansiintervaldays((return_date#275 - rental_date#272)), 0)) AS total_rental_hours#1503L]
+   +- Project [name#76, rental_date#272, return_date#275, city#99]
+      +- Join Inner, (city_id#46 = city_id#98)
+         :- Project [name#76, rental_date#272, return_date#275, city_id#46]
+         :  +- Join Inner, (address_id#128 = address_id#42)
+         :     :- Project [name#76, rental_date#272, return_date#275, address_id#128]
+         :     :  +- Join Inner, (customer_id#274 = customer_id#123)
+         :     :     :- Project [name#76, rental_date#272, customer_id#274, return_date#275]
+         :     :     :  +- Join Inner, (inventory_id#251 = inventory_id#273)
+         :     :     :     :- Project [name#76, inventory_id#251]
+         :     :     :     :  +- Join Inner, (film_id#228 = film_id#252)
+         :     :     :     :     :- Project [name#76, film_id#228]
+         :     :     :     :     :  +- Join Inner, (category_id#75 = category_id#229)
+         :     :     :     :     :     :- Project [category_id#75, name#76]
+         :     :     :     :     :     :  +- Filter isnotnull(category_id#75)
+         :     :     :     :     :     :     +- Relation [category_id#75,name#76,last_update#77] csv
+         :     :     :     :     :     +- Project [film_id#228, category_id#229]
+         :     :     :     :     :        +- Filter (isnotnull(category_id#229) AND isnotnull(film_id#228))
+         :     :     :     :     :           +- Relation [film_id#228,category_id#229,last_update#230] csv
+         :     :     :     :     +- Project [inventory_id#251, film_id#252]
+         :     :     :     :        +- Filter (isnotnull(film_id#252) AND isnotnull(inventory_id#251))
+         :     :     :     :           +- Relation [inventory_id#251,film_id#252,store_id#253,last_update#254] csv
+         :     :     :     +- Project [rental_date#272, inventory_id#273, customer_id#274, return_date#275]
+         :     :     :        +- Filter (isnotnull(inventory_id#273) AND isnotnull(customer_id#274))
+         :     :     :           +- Relation [rental_id#271,rental_date#272,inventory_id#273,customer_id#274,return_date#275,staff_id#276,last_update#277] csv
+         :     :     +- Project [customer_id#123, address_id#128]
+         :     :        +- Filter (isnotnull(customer_id#123) AND isnotnull(address_id#128))
+         :     :           +- Relation [customer_id#123,store_id#124,first_name#125,last_name#126,email#127,address_id#128,activebool#129,create_date#130,last_update#131,active#132] csv
+         :     +- Project [address_id#42, city_id#46]
+         :        +- Filter (isnotnull(address_id#42) AND isnotnull(city_id#46))
+         :           +- Relation [address_id#42,address#43,address2#44,district#45,city_id#46,postal_code#47,phone#48L,last_update#49] csv
+         +- Project [city_id#98, city#99]
+            +- Filter ((StartsWith(city#99, A) OR Contains(city#99, -)) AND isnotnull(city_id#98))
+               +- Relation [city_id#98,city#99,country_id#100,last_update#101] csv
+
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Filter ((StartsWith(city#99, A) AND (total_rental_hours#1503L = 46)) OR (Contains(city#99, -) AND (total_rental_hours#1503L = 36)))
+   +- HashAggregate(keys=[name#76, city#99], functions=[sum(coalesce(extractansiintervaldays((return_date#275 - rental_date#272)), 0))], output=[name#76, city#99, total_rental_hours#1503L])
+      +- Exchange hashpartitioning(name#76, city#99, 200), ENSURE_REQUIREMENTS, [plan_id=6019]
+         +- HashAggregate(keys=[name#76, city#99], functions=[partial_sum(coalesce(extractansiintervaldays((return_date#275 - rental_date#272)), 0))], output=[name#76, city#99, sum#1633L])
+            +- Project [name#76, rental_date#272, return_date#275, city#99]
+               +- BroadcastHashJoin [city_id#46], [city_id#98], Inner, BuildRight, false
+                  :- Project [name#76, rental_date#272, return_date#275, city_id#46]
+                  :  +- BroadcastHashJoin [address_id#128], [address_id#42], Inner, BuildRight, false
+                  :     :- Project [name#76, rental_date#272, return_date#275, address_id#128]
+                  :     :  +- BroadcastHashJoin [customer_id#274], [customer_id#123], Inner, BuildRight, false
+                  :     :     :- Project [name#76, rental_date#272, customer_id#274, return_date#275]
+                  :     :     :  +- BroadcastHashJoin [inventory_id#251], [inventory_id#273], Inner, BuildRight, false
+                  :     :     :     :- Project [name#76, inventory_id#251]
+                  :     :     :     :  +- BroadcastHashJoin [film_id#228], [film_id#252], Inner, BuildRight, false
+                  :     :     :     :     :- Project [name#76, film_id#228]
+                  :     :     :     :     :  +- BroadcastHashJoin [category_id#75], [category_id#229], Inner, BuildLeft, false
+                  :     :     :     :     :     :- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[0, int, false] as bigint)),false), [plan_id=5994]
+                  :     :     :     :     :     :  +- Filter isnotnull(category_id#75)
+                  :     :     :     :     :     :     +- FileScan csv [category_id#75,name#76] Batched: false, DataFilters: [isnotnull(category_id#75)], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/home/user/projects/de-trainee/5_PYT-3689_Spark_framework_Course/..., PartitionFilters: [], PushedFilters: [IsNotNull(category_id)], ReadSchema: struct<category_id:int,name:string>
+                  :     :     :     :     :     +- Filter (isnotnull(category_id#229) AND isnotnull(film_id#228))
+                  :     :     :     :     :        +- FileScan csv [film_id#228,category_id#229] Batched: false, DataFilters: [isnotnull(category_id#229), isnotnull(film_id#228)], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/home/user/projects/de-trainee/5_PYT-3689_Spark_framework_Course/..., PartitionFilters: [], PushedFilters: [IsNotNull(category_id), IsNotNull(film_id)], ReadSchema: struct<film_id:int,category_id:int>
+                  :     :     :     :     +- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[1, int, false] as bigint)),false), [plan_id=5998]
+                  :     :     :     :        +- Filter (isnotnull(film_id#252) AND isnotnull(inventory_id#251))
+                  :     :     :     :           +- FileScan csv [inventory_id#251,film_id#252] Batched: false, DataFilters: [isnotnull(film_id#252), isnotnull(inventory_id#251)], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/home/user/projects/de-trainee/5_PYT-3689_Spark_framework_Course/..., PartitionFilters: [], PushedFilters: [IsNotNull(film_id), IsNotNull(inventory_id)], ReadSchema: struct<inventory_id:int,film_id:int>
+                  :     :     :     +- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[1, int, false] as bigint)),false), [plan_id=6002]
+                  :     :     :        +- Filter (isnotnull(inventory_id#273) AND isnotnull(customer_id#274))
+                  :     :     :           +- FileScan csv [rental_date#272,inventory_id#273,customer_id#274,return_date#275] Batched: false, DataFilters: [isnotnull(inventory_id#273), isnotnull(customer_id#274)], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/home/user/projects/de-trainee/5_PYT-3689_Spark_framework_Course/..., PartitionFilters: [], PushedFilters: [IsNotNull(inventory_id), IsNotNull(customer_id)], ReadSchema: struct<rental_date:date,inventory_id:int,customer_id:int,return_date:date>
+                  :     :     +- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[0, int, false] as bigint)),false), [plan_id=6006]
+                  :     :        +- Filter (isnotnull(customer_id#123) AND isnotnull(address_id#128))
+                  :     :           +- FileScan csv [customer_id#123,address_id#128] Batched: false, DataFilters: [isnotnull(customer_id#123), isnotnull(address_id#128)], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/home/user/projects/de-trainee/5_PYT-3689_Spark_framework_Course/..., PartitionFilters: [], PushedFilters: [IsNotNull(customer_id), IsNotNull(address_id)], ReadSchema: struct<customer_id:int,address_id:int>
+                  :     +- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[0, int, false] as bigint)),false), [plan_id=6010]
+                  :        +- Filter (isnotnull(address_id#42) AND isnotnull(city_id#46))
+                  :           +- FileScan csv [address_id#42,city_id#46] Batched: false, DataFilters: [isnotnull(address_id#42), isnotnull(city_id#46)], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/home/user/projects/de-trainee/5_PYT-3689_Spark_framework_Course/..., PartitionFilters: [], PushedFilters: [IsNotNull(address_id), IsNotNull(city_id)], ReadSchema: struct<address_id:int,city_id:int>
+                  +- BroadcastExchange HashedRelationBroadcastMode(List(cast(input[0, int, false] as bigint)),false), [plan_id=6014]
+                     +- Filter ((StartsWith(city#99, A) OR Contains(city#99, -)) AND isnotnull(city_id#98))
+                        +- FileScan csv [city_id#98,city#99] Batched: false, DataFilters: [(StartsWith(city#99, A) OR Contains(city#99, -)), isnotnull(city_id#98)], Format: CSV, Location: InMemoryFileIndex(1 paths)[file:/home/user/projects/de-trainee/5_PYT-3689_Spark_framework_Course/..., PartitionFilters: [], PushedFilters: [Or(StringStartsWith(city,A),StringContains(city,-)), IsNotNull(city_id)], ReadSchema: struct<city_id:int,city:string>

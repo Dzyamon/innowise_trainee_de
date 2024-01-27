@@ -1,4 +1,4 @@
-Task 3. SQL queries
+Task 5. SQL queries
 
 Из демо PostgreSQL базы данных загрузите таблицы в PySpark DataFrames.
 

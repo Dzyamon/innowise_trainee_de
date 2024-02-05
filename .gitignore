@@ -1,0 +1,7 @@
+.venv
+.env
+.idea/
+__pycache__/
+.pytest_cache
+*.log
+/1_PYT-3686_qPython_introduction/source/output/*

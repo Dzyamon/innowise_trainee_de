@@ -62,7 +62,28 @@ WHERE NOT EXISTS (
 -- 5.Вывести топ 3 актеров, которые больше всего появлялись в фильмах в категории “Children”.
 -- Если у нескольких актеров одинаковое кол-во фильмов, вывести всех.
 WITH actor_film_counts AS (
-  SELECT a.first_name, a.last_name, c.name, COUNT(*) AS film_count
+  SELECT a.first_name, a.last_name,
+         c.name,
+         COUNT(*) AS film_count,
+         DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
+  FROM actor a
+  JOIN film_actor fa ON a.actor_id = fa.actor_id
+  JOIN film f ON fa.film_id = f.film_id
+  JOIN film_category fc ON f.film_id = fc.film_id
+  JOIN category c ON fc.category_id = c.category_id
+  WHERE c.name = 'Children'
+  GROUP BY a.first_name, a.last_name, c.name
+)
+SELECT first_name, last_name, film_count, rank
+FROM actor_film_counts a
+WHERE rank <= 3
+ORDER BY film_count DESC;
+
+--v2 (old)
+WITH actor_film_counts AS (
+  SELECT a.first_name, a.last_name,
+         c.name,
+         COUNT(*) AS film_count
   FROM actor a
   JOIN film_actor fa ON a.actor_id = fa.actor_id
   JOIN film f ON fa.film_id = f.film_id
@@ -72,14 +93,13 @@ WITH actor_film_counts AS (
   GROUP BY a.first_name, a.last_name, c.name
 )
 SELECT first_name, last_name, film_count
-FROM actor_film_counts
+FROM actor_film_counts a
 WHERE film_count IN (
     SELECT film_count
     FROM actor_film_counts
     ORDER BY film_count DESC
     LIMIT 3)
 ORDER BY film_count DESC;
-
 
 -- 6.Вывести города с количеством активных и неактивных клиентов (активный — customer.active = 1).
 -- Отсортировать по количеству неактивных клиентов по убыванию.

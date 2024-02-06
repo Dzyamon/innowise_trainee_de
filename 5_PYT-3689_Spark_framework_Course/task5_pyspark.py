@@ -170,6 +170,7 @@ df7.show()
 
 # WRITE TO FILE
 df7.write.option('header', 'true').mode('overwrite').csv('df7.csv')
+df7.toPandas().to_csv("./2.csv", index=False)
 
 # PLANS
 plans = df7._jdf.queryExecution().toString()
